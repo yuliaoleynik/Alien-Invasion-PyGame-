@@ -32,6 +32,12 @@ class AlienInvasion():
             self.ship.moving_right = True
         if event.key == pygame.K_LEFT:
             self.ship.moving_left = True
+
+        if event.key == pygame.K_UP:
+            self.ship.moving_up = True
+        if event.key == pygame.K_DOWN:
+            self.ship.moving_down = True
+
         if event.key == pygame.K_SPACE:
             self._fire_bullet()
 
@@ -41,6 +47,11 @@ class AlienInvasion():
             self.ship.moving_right = False
         if event.key == pygame.K_LEFT:
             self.ship.moving_left = False
+
+        if event.key == pygame.K_UP:
+            self.ship.moving_up = False
+        if event.key == pygame.K_DOWN:
+            self.ship.moving_down = False
 
     def _check_events(self):
         """Обрабатывает события нажатия кнопки"""
@@ -57,13 +68,21 @@ class AlienInvasion():
         new_bullet = Bullet(self)
         self.bullets.add(new_bullet)
 
+    def _update_bullets(self):
+        self.bullets.update()
+
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
 
     def run_game(self):
         """Запуск основного цикла игры"""
         while True:
             self._check_events()
             self.ship.update()
-            self.bullets.update()
+            self._update_bullets()
+
             self._upgrade_screen()
 
 
