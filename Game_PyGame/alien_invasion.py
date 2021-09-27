@@ -4,6 +4,7 @@ import pygame
 from ship import Ship
 from settings import Settings
 from bullet import Bullet
+from alien import Alien
 
 class AlienInvasion(): 
     """Класс для управления ресурсами и поведения игры"""
@@ -18,13 +19,24 @@ class AlienInvasion():
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+
+        self._create_fleet()
+
+    def _create_fleet(self):
+        """Создание флота вторжения"""
+        alien = Alien(self)
+        self.aliens.add(alien)
 
     def _upgrade_screen(self):
         """Обновляет изображение на экране"""
         self.screen.blit(self.settings.bg_img, (0, 0))
-        self.ship.blitme()           
+        self.ship.blitme()     
+
         for bullet in self.bullets.sprites():
             bullet.draw_bullet() 
+
+        self.aliens.draw(self.screen)
         pygame.display.flip()
 
     def _check_keydown(self, event):
@@ -82,7 +94,6 @@ class AlienInvasion():
             self._check_events()
             self.ship.update()
             self._update_bullets()
-
             self._upgrade_screen()
 
 
