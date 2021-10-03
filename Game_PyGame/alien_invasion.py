@@ -1,5 +1,6 @@
 import sys
 import pygame
+from random import randint
 
 from ship import Ship
 from settings import Settings
@@ -22,11 +23,34 @@ class AlienInvasion():
         self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
+    
+    def _create_alien(self, alien_number, row_number):
+        """Создание пришельца и размещение его в ряду"""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.y = alien.rect.height / 2 + 2 * alien.rect.height * row_number
+        alien.rect.x = alien.x
+
+        self.aliens.add(alien)
 
     def _create_fleet(self):
         """Создание флота вторжения"""
         alien = Alien(self)
-        self.aliens.add(alien)
+        alien_width, alien_height = alien.rect.size
+        available_space_x = self.settings.screen_width - alien_width
+
+        ship_height = self.ship.rect.height
+        
+        available_space_y = (self.settings.screen_height - (2 * alien_height) - ship_height)
+        number_rows = available_space_y // (2 * alien_height)   
+
+        for row_number in range(number_rows):
+            number_alien_x = randint(2, 5)
+            for alien_namber in range(number_alien_x):
+                self._create_alien(alien_namber, row_number)
+
 
     def _upgrade_screen(self):
         """Обновляет изображение на экране"""
