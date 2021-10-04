@@ -39,3 +39,8 @@ class Ship():
             self.rect.y -= self.settings.ship_speed
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
             self.rect.y += self.settings.ship_speed
+
+    def center_ship(self):
+        """Делает анимацию и размещает корабль по центру"""
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = float(self.rect.x)
