@@ -8,6 +8,7 @@ from settings import Settings
 from bullet import Bullet
 from alien import Alien
 from game_stat import GameStats
+from button import Button
 
 class AlienInvasion(): 
     """Класс для управления ресурсами и поведения игры"""
@@ -27,6 +28,10 @@ class AlienInvasion():
         self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
+
+        self.play_button = Button(self, "PLAY", 1)
+        self.inst_button = Button(self, "Instruction", 2)
+        self.inst_play_button = Button(self, "Back", 3)
     
     def _create_alien(self, alien_number, row_number):
         """Создание пришельца и размещение его в ряду"""
@@ -81,6 +86,7 @@ class AlienInvasion():
             sleep(0.4)
         else:
             self.stats.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _update_aliens(self):
         """Обновляет позиции всех пришельцев"""
@@ -93,15 +99,26 @@ class AlienInvasion():
         self._check_aliens_bottom() 
 
     def _upgrade_screen(self):
-        """Обновляет изображение на экране"""
-        self.screen.blit(self.settings.bg_img, (0, 0))
-        self.ship.blitme()     
+        """Обновляет изображение на экране"""     
+        if not self.stats.game_active:
+            if self.stats.inst_active:
+                self.screen.blit(self.settings.bg_inst, (0, 0))
+                self.inst_play_button.draw_button()
+            else:
+                self.screen.blit(self.settings.bg_start, (0,0))
+                self.play_button.draw_button()
+                self.inst_button.draw_button()
+        else:
+            self.screen.blit(self.settings.bg_img, (0, 0))
+            self.ship.blitme()     
 
-        for bullet in self.bullets.sprites():
-            bullet.draw_bullet() 
+            for bullet in self.bullets.sprites():
+                bullet.draw_bullet() 
 
-        self.aliens.draw(self.screen)
+            self.aliens.draw(self.screen)
+
         pygame.display.flip()
+
 
     def _check_keydown(self, event):
         if event.key == pygame.K_RIGHT:
@@ -125,9 +142,28 @@ class AlienInvasion():
             self.ship.moving_left = False
 
         if event.key == pygame.K_UP:
-            self.ship.moving_up = False
+            self.ship.moving_up = False 
         if event.key == pygame.K_DOWN:
             self.ship.moving_down = False
+
+    def _check_play_button(self, mouse_pos):
+        """Запускает новую игру при нажатии на  кнопку"""
+        if self.play_button.rect.collidepoint(mouse_pos) and not self.stats.game_active:
+            self.settings.initialize_dynamic_setting() 
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            self.aliens.empty()
+            self.bullets.empty()
+
+            self._create_fleet()
+            self.ship.center_ship()
+
+            pygame.mouse.set_visible(False)
+        elif self.inst_button.rect_inst.collidepoint(mouse_pos) and not self.stats.game_active:
+            self.stats.inst_active = True
+        elif self.inst_play_button.rect_play_inst.collidepoint(mouse_pos) and not self.stats.game_active:
+            self.stats.inst_active = False
 
     def _check_events(self):
         """Обрабатывает события нажатия кнопки"""
@@ -138,6 +174,9 @@ class AlienInvasion():
                self._check_keydown(event)
             elif event.type == pygame.KEYUP:
                self._check_keyup(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
 
     def _fire_bullet(self):
         """Создание нового снаряда"""
@@ -158,6 +197,7 @@ class AlienInvasion():
         if not self.aliens:
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _check_aliens_bottom(self):
         """Проверяет столкновение пришельца с нижней частью экрана"""
@@ -171,15 +211,14 @@ class AlienInvasion():
     def run_game(self):
         """Запуск основного цикла игры"""
         while True:
+            self._check_events()
 
             if self.stats.game_active:
-                self._check_events()
                 self.ship.update()
                 self._update_bullets()
                 self._update_aliens()
-                self._upgrade_screen()
-            else:
-                pygame.quit()
+            
+            self._upgrade_screen()
             
 
 
