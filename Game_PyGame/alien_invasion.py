@@ -9,6 +9,7 @@ from bullet import Bullet
 from alien import Alien
 from game_stat import GameStats
 from button import Button
+from scoreboard import Scoreboard
 
 class AlienInvasion(): 
     """Класс для управления ресурсами и поведения игры"""
@@ -20,8 +21,10 @@ class AlienInvasion():
 
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption("Alien Invasion")
+        pygame.display.set_icon(self.settings.icon)
 
         self.stats = GameStats(self)
+        self.score = Scoreboard(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -116,9 +119,9 @@ class AlienInvasion():
                 bullet.draw_bullet() 
 
             self.aliens.draw(self.screen)
+            self.score.show_score()
 
         pygame.display.flip()
-
 
     def _check_keydown(self, event):
         if event.key == pygame.K_RIGHT:
@@ -133,7 +136,6 @@ class AlienInvasion():
 
         if event.key == pygame.K_SPACE:
             self._fire_bullet()
-
 
     def _check_keyup(self, event):
         if event.key == pygame.K_RIGHT:
@@ -152,6 +154,7 @@ class AlienInvasion():
             self.settings.initialize_dynamic_setting() 
             self.stats.reset_stats()
             self.stats.game_active = True
+            self.score.prep_score()
 
             self.aliens.empty()
             self.bullets.empty()
@@ -169,7 +172,7 @@ class AlienInvasion():
         """Обрабатывает события нажатия кнопки"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                   sys.exit()
+                sys.exit()   
             elif event.type == pygame.KEYDOWN:
                self._check_keydown(event)
             elif event.type == pygame.KEYUP:
@@ -193,6 +196,13 @@ class AlienInvasion():
                 self.bullets.remove(bullet)
 
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        if collisions:
+
+            for alien in collisions.values():
+                self.stats.score += self.settings.alien_points * len(alien)
+
+            self.score.prep_score()
+            self.score.check_high_score()
 
         if not self.aliens:
             self.bullets.empty()

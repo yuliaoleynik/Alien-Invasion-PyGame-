@@ -7,19 +7,19 @@ class Button():
         self.screen = start_game.screen
         self.screen_rect = self.screen.get_rect()
 
-        self.width, self.height = 200,50
-        self.button_color = (0, 0 , 0)
+        self.width, self.height = 170,30
+        self.button_color = (25,25,112)
         self.text_color = (255, 255, 255)
-        self.font = pygame.font.SysFont("PressStart2PRegular.tff", 48)
+        self.font = pygame.font.SysFont("PressStart2P.tff", 40)
          
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.rect.center = self.screen_rect.center
 
         self.rect_inst = pygame.Rect(497, 395, self.width, self.height)
-        self.rect_inst.center = (495, 395)
+        self.rect_inst.center = (497, 395)
 
-        self.rect_play_inst = pygame.Rect(497, 550, self.width, self.height)
-        self.rect_play_inst.center = (490, 550)
+        self.rect_play_inst = pygame.Rect(497, 620, self.width, self.height)
+        self.rect_play_inst.center = (497,620)
 
         self.prep_msg(msg)
 
